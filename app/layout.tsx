@@ -1,10 +1,12 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import './operations.css'
+import 'leaflet/dist/leaflet.css'
 
 export const metadata: Metadata = {
-  title: 'ECO ROUTE · Operación inteligente',
-  description: 'Monitorea, construye y optimiza recorridos seguros para tu operación.',
+  title: 'ECO ROUTE | Gestión de flota y recorridos',
+  description: 'Administra vehículos, conductores, viajes y rutas desde un panel seguro para tu operación.',
   generator: 'v0.app',
   icons: {
     icon: [
