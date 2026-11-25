@@ -8,6 +8,7 @@ export type Driver = {
   phone: string | null
   license: string | null
   status: string
+  authUserId: string | null
   createdAt: string
 }
 
@@ -52,7 +53,7 @@ export type OperationsData = {
   trips: Trip[]
 }
 
-export type DriverInput = Omit<Driver, 'createdAt' | 'id'> & { id?: string }
+export type DriverInput = Omit<Driver, 'createdAt' | 'id' | 'authUserId'> & { id?: string }
 export type VehicleInput = Omit<Vehicle, 'createdAt' | 'id'> & { id?: string }
 export type RouteInput = Omit<Route, 'createdAt' | 'id'> & { id?: string }
 export type TripInput = Omit<Trip, 'createdAt' | 'id' | 'progress'> & { id?: string }

@@ -1,4 +1,7 @@
 import { betterAuth } from 'better-auth'
+import { admin } from 'better-auth/plugins'
+import { adminAc, userAc } from 'better-auth/plugins/admin/access'
+import { nextCookies } from 'better-auth/next-js'
 import { pool } from '@/lib/db'
 
 export const auth = betterAuth({
@@ -13,7 +16,19 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    disableSignUp: true,
   },
+  user: {
+    additionalFields: {
+      mustChangePassword: {
+        type: 'boolean',
+        required: false,
+        defaultValue: false,
+        input: false,
+      },
+    },
+  },
+  plugins: [admin({ defaultRole: 'driver', adminRoles: ['admin'], roles: { admin: adminAc, driver: userAc } }), nextCookies()],
   trustedOrigins: [
     ...(process.env.NODE_ENV === 'development'
       ? [

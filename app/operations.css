@@ -219,3 +219,90 @@
 @media (prefers-reduced-motion: reduce) {
   .button { transition: none; }
 }
+
+.driver-access-toggle { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--muted); cursor: pointer; }
+.driver-access-toggle input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--primary); flex: 0 0 auto; }
+.driver-access-toggle span { display: flex; flex-direction: column; gap: 4px; }
+.driver-access-toggle strong { font-size: 12px; }
+.driver-access-toggle small { color: var(--muted-foreground); font-size: 10px; line-height: 1.5; }
+.account-pill { padding: 5px 8px; border-radius: 20px; color: #16714f; background: #e4f5ed; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.temporary-credential { display: flex; flex-direction: column; gap: 12px; padding: 22px 24px 24px; }
+.temporary-credential .credential-icon, .credential-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 11px; color: var(--primary); background: var(--secondary); }
+.credential-icon svg { width: 20px; height: 20px; }
+.temporary-credential h3 { margin: 0; font-size: 18px; }
+.temporary-credential > p { margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.6; }
+.temporary-credential .field-label { margin: 2px 0 0; }
+.temporary-credential .field-label input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .04em; }
+.temporary-credential .button { align-self: flex-start; }
+.credential-page { display: flex; min-height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: 28px 18px; background: var(--background); }
+.credential-brand { align-self: flex-start; margin: 0 auto 22px; color: #15322b; text-decoration: none; }
+.credential-brand .brand-mark { color: #087c5a; border-color: #66d7ae; }
+.credential-brand strong { color: #087c5a; }
+.credential-card { width: min(100%, 460px); padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: 0 14px 45px #143b2c0d; }
+.credential-card > .credential-icon { margin-bottom: 20px; }
+.credential-card h1 { margin: 0 0 10px; font-size: clamp(24px, 5vw, 30px); letter-spacing: -.04em; line-height: 1.15; }
+.credential-intro { margin: 0 0 22px; color: var(--muted-foreground); font-size: 13px; line-height: 1.65; }
+.credential-hint { margin: 0 0 12px; color: var(--muted-foreground); font-size: 11px; }
+.credential-submit { width: 100%; min-height: 46px; }
+.credential-footer { margin: 18px 0 0; color: var(--muted-foreground); font-size: 10px; }
+.driver-portal { min-height: 100dvh; background: #f4f7f6; color: #15322b; }
+.driver-portal-header { display: flex; min-height: 68px; align-items: center; justify-content: space-between; gap: 16px; padding: 12px clamp(18px, 5vw, 64px); border-bottom: 1px solid #e0e9e5; background: #fff; }
+.driver-brand { color: #15322b; font-size: 15px; text-decoration: none; }
+.driver-brand .brand-mark { width: 31px; height: 31px; color: #087c5a; border-color: #66d7ae; }
+.driver-brand strong { color: #087c5a; }
+.driver-portal-content { width: min(100% - 36px, 1050px); margin: 0 auto; padding: 34px 0 26px; }
+.driver-welcome { position: relative; overflow: hidden; margin-bottom: 25px; padding: clamp(22px, 4vw, 34px); border-radius: 15px; color: #f0fff7; background: linear-gradient(115deg, #0d5d47, #0b805e); }
+.driver-welcome::after { position: absolute; top: -85px; right: -45px; width: 240px; height: 240px; border: 1px solid #9ce7c655; border-radius: 50%; box-shadow: 0 0 0 26px #9ce7c622, 0 0 0 55px #9ce7c611; content: ''; }
+.driver-welcome .eyebrow { color: #a3e9cb; }
+.driver-welcome h1 { position: relative; z-index: 1; margin: 0 0 8px; font-size: clamp(28px, 5vw, 38px); letter-spacing: -.05em; }
+.driver-welcome > p:not(.eyebrow) { position: relative; z-index: 1; margin: 0; color: #c5e5d8; font-size: 13px; line-height: 1.6; }
+.driver-welcome-stats { display: flex; gap: 32px; margin-top: 23px; }
+.driver-welcome-stats span { display: flex; flex-direction: column; gap: 3px; }
+.driver-welcome-stats strong { font-size: 20px; }
+.driver-welcome-stats small { color: #c5e5d8; font-size: 10px; }
+.active-trip-notice { position: absolute; right: 28px; bottom: 30px; z-index: 1; display: flex; align-items: center; gap: 8px; color: #e0f7eb; font-size: 11px; }
+.active-trip-notice svg { width: 16px; }
+.driver-assignments { padding: 22px; border: 1px solid #e0e9e5; border-radius: 14px; background: #fff; }
+.driver-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.driver-section-heading .eyebrow { margin-bottom: 5px; }
+.driver-section-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
+.driver-section-heading > span { color: #71827d; font-size: 11px; }
+.driver-assignment-list { display: flex; flex-direction: column; gap: 10px; }
+.driver-assignment-card { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px; border: 1px solid #e7eeeb; border-radius: 11px; }
+.driver-assignment-icon { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 10px; color: #087c5a; background: #e5f5ed; }
+.driver-assignment-icon.completed { color: #4d84bd; background: #e8f1f8; }
+.driver-assignment-icon svg { width: 18px; }
+.driver-assignment-main { min-width: 0; }
+.driver-assignment-title { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.driver-assignment-title h3 { margin: 0; font-size: 14px; }
+.driver-trip-status { padding: 4px 8px; border-radius: 20px; color: #35678c; background: #e8f1f8; font-size: 9px; font-weight: 700; }
+.driver-trip-status.in_progress { color: #176b4c; background: #e4f5ed; }
+.driver-trip-status.paused { color: #8b5a15; background: #fbf1dc; }
+.driver-trip-status.completed { color: #64716b; background: #edf1ef; }
+.driver-address { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 7px 0; color: #53655e; font-size: 11px; }
+.driver-address svg { width: 13px; height: 13px; color: #087c5a; flex: 0 0 auto; }
+.driver-assignment-meta { display: flex; flex-wrap: wrap; gap: 14px; color: #71827d; font-size: 10px; }
+.driver-assignment-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.driver-assignment-meta svg { width: 13px; height: 13px; }
+.driver-assignment-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.driver-empty-state { display: flex; min-height: 230px; flex-direction: column; align-items: center; justify-content: center; padding: 24px; border: 1px dashed #d6e3dd; border-radius: 12px; text-align: center; }
+.driver-empty-state > span { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 12px; color: #087c5a; background: #e5f5ed; }
+.driver-empty-state > span svg { width: 22px; }
+.driver-empty-state h3 { margin: 14px 0 5px; font-size: 14px; }
+.driver-empty-state p { max-width: 300px; margin: 0; color: #71827d; font-size: 11px; line-height: 1.6; }
+.driver-portal-footer { margin: 18px 0 0; color: #85938e; font-size: 10px; text-align: center; }
+@media (max-width: 760px) {
+  .credential-card { padding: 24px 20px; }
+  .driver-portal-header { min-height: 60px; padding-inline: 16px; }
+  .driver-brand { font-size: 13px; }
+  .driver-portal-header > .button { padding-inline: 9px; }
+  .driver-portal-content { width: min(100% - 24px, 1050px); padding-top: 18px; }
+  .driver-welcome { margin-bottom: 14px; padding: 22px 18px; }
+  .driver-welcome h1 { font-size: 27px; }
+  .active-trip-notice { position: relative; right: auto; bottom: auto; margin-top: 16px; }
+  .driver-assignments { padding: 16px 12px; }
+  .driver-assignment-card { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; padding: 13px; }
+  .driver-assignment-icon { width: 35px; height: 35px; }
+  .driver-assignment-title h3 { font-size: 12px; }
+  .driver-assignment-actions { grid-column: 2; justify-content: flex-start; }
+}

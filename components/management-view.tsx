@@ -41,6 +41,7 @@ export function ManagementView({ type, data, onCreate, onEdit }: Props) {
           return <article className="management-card" key={record.id}>
             <span className={`entity-avatar ${isDriver ? '' : 'vehicle-avatar'}`}>{isDriver ? <Users aria-hidden="true" /> : <Truck aria-hidden="true" />}</span>
             <div className="management-main"><strong>{headline}</strong><p>{identifier}</p><small>{meta || 'Sin correo registrado'}</small></div>
+            {isDriver && (record as Driver).authUserId && <span className="account-pill">Acceso activo</span>}
             <span className={`status-pill ${details.tone}`}><i />{details.label}</span>
             <button className="button button-secondary button-small" type="button" onClick={() => onEdit(record)}>Editar</button>
           </article>
