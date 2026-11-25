@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { X } from 'lucide-react'
+import { KeyRound, X } from 'lucide-react'
 import { deleteRecord, saveDriver, saveRoute, saveTrip, saveVehicle } from '@/app/actions/operations'
 import type { Driver, OperationsData, Route, Trip, Vehicle } from '@/lib/operations-types'
 
@@ -35,6 +35,9 @@ export function OperationDialog({ kind, data, onClose, onSaved, driver, vehicle,
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [temporaryPassword, setTemporaryPassword] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [createAccess, setCreateAccess] = useState(kind === 'driver' && !driver)
   const editing = Boolean(driver || vehicle || route || trip)
 
   useEffect(() => {
@@ -47,16 +50,19 @@ export function OperationDialog({ kind, data, onClose, onSaved, driver, vehicle,
     setSaving(true)
     const fields = new FormData(event.currentTarget)
     const value = (name: string) => String(fields.get(name) ?? '').trim()
+    let generatedPassword = ''
     try {
       if (kind === 'driver') {
-        await saveDriver({
+        const result = await saveDriver({
           id: driver?.id,
           name: value('name'),
           email: value('email') || null,
           phone: value('phone') || null,
           license: value('license') || null,
           status: value('status'),
+          createAccess: !driver && createAccess,
         })
+        generatedPassword = result?.temporaryPassword ?? ''
       } else if (kind === 'vehicle') {
         const rawBattery = value('battery')
         await saveVehicle({
@@ -90,6 +96,10 @@ export function OperationDialog({ kind, data, onClose, onSaved, driver, vehicle,
         })
       }
       await onSaved()
+      if (generatedPassword) {
+        setTemporaryPassword(generatedPassword)
+        return
+      }
       onClose()
     } catch {
       setError('No se pudo guardar. Revisa los datos e inténtalo de nuevo.')
@@ -124,13 +134,23 @@ export function OperationDialog({ kind, data, onClose, onSaved, driver, vehicle,
         </div>
         <button className="icon-button" type="button" onClick={onClose} aria-label="Cerrar formulario"><X aria-hidden="true" /></button>
       </div>
-      <form className="operation-form" onSubmit={handleSubmit}>
+      {temporaryPassword ? <div className="temporary-credential" role="status">
+        <span className="credential-icon"><KeyRound aria-hidden="true" /></span>
+        <h3>Acceso creado</h3>
+        <p>Comparte esta clave temporal con el conductor por un canal privado. Solo se muestra ahora; al ingresar, deberá crear su propia contraseña.</p>
+        <label className="field-label" htmlFor="temporary-driver-password">Clave temporal<input id="temporary-driver-password" readOnly value={temporaryPassword} onFocus={(event) => event.currentTarget.select()} /></label>
+        <button className="button button-secondary" type="button" onClick={async () => { try { await navigator.clipboard.writeText(temporaryPassword); setCopied(true) } catch { setCopied(false) } }}>{copied ? 'Copiada' : 'Copiar clave'}</button>
+        <button className="button button-primary" type="button" onClick={onClose}>Listo</button>
+      </div> : <form className="operation-form" onSubmit={handleSubmit}>
         {kind === 'driver' && <>
           <label className="field-label" htmlFor="driver-name">Nombre<input id="driver-name" name="name" required maxLength={120} defaultValue={driver?.name ?? ''} autoFocus /></label>
           <div className="form-pair">
-            <label className="field-label" htmlFor="driver-email">Correo<input id="driver-email" name="email" type="email" maxLength={254} defaultValue={driver?.email ?? ''} /></label>
+            <label className="field-label" htmlFor="driver-email">Correo<input id="driver-email" name="email" type="email" maxLength={254} required={!driver && createAccess} readOnly={Boolean(driver?.authUserId)} defaultValue={driver?.email ?? ''} /></label>
             <label className="field-label" htmlFor="driver-phone">Teléfono<input id="driver-phone" name="phone" type="tel" maxLength={40} defaultValue={driver?.phone ?? ''} /></label>
           </div>
+          {driver?.authUserId && <p className="form-hint">El correo de acceso no se puede cambiar desde este formulario.</p>}
+          {!driver && <label className="driver-access-toggle"><input type="checkbox" checked={createAccess} onChange={(event) => setCreateAccess(event.target.checked)} /><span><strong>Crear acceso para el conductor</strong><small>Se generará una clave temporal para su primer ingreso.</small></span></label>}
+          {createAccess && !driver && <p className="form-hint">Se requiere un correo electrónico. No se enviará un correo: tendrás que compartir la clave temporal de forma privada.</p>}
           <div className="form-pair">
             <label className="field-label" htmlFor="driver-license">Licencia<input id="driver-license" name="license" maxLength={60} defaultValue={driver?.license ?? ''} /></label>
             <label className="field-label" htmlFor="driver-status">Disponibilidad<select id="driver-status" name="status" defaultValue={driver?.status ?? 'available'}><option value="available">Disponible</option><option value="on-route">En recorrido</option><option value="off-duty">Fuera de turno</option></select></label>
@@ -178,7 +198,7 @@ export function OperationDialog({ kind, data, onClose, onSaved, driver, vehicle,
           <button className="button button-secondary" type="button" onClick={onClose} disabled={saving}>Cancelar</button>
           <button className="button button-primary" type="submit" disabled={saving || (kind === 'trip' && data.routes.length === 0)}>{saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Guardar'}</button>
         </div>
-      </form>
+      </form>}
     </dialog>
   )
 }

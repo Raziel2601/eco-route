@@ -2,13 +2,13 @@
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { drivers, routes, trips, vehicles, type RouteWaypoint } from '@/lib/db/schema'
+import { drivers, routes, trips, user, vehicles, type RouteWaypoint } from '@/lib/db/schema'
 import { getOperationsForUser } from '@/lib/operations-data'
 import type { DriverInput, RouteInput, TripInput, VehicleInput } from '@/lib/operations-types'
 import { and, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { randomUUID } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 
 const driverStatuses = ['available', 'on-route', 'off-duty'] as const
 const vehicleStatuses = ['available', 'on-route', 'maintenance'] as const
@@ -16,7 +16,9 @@ const tripStatuses = ['planned', 'in_progress', 'paused', 'completed'] as const
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) throw new Error('Unauthorized')
+  if (!session?.user || session.user.role !== 'admin') throw new Error('Unauthorized')
+  const [identity] = await db.select({ role: user.role, mustChangePassword: user.mustChangePassword }).from(user).where(eq(user.id, session.user.id)).limit(1)
+  if (!identity || identity.role !== 'admin' || identity.mustChangePassword) throw new Error('Unauthorized')
   return session.user.id
 }
 
@@ -71,11 +73,11 @@ export async function getOperations() {
   return getOperationsForUser(userId)
 }
 
-export async function saveDriver(input: DriverInput) {
+export async function saveDriver(input: DriverInput & { createAccess?: boolean }) {
   const userId = await getUserId()
   const values = {
     name: requiredText(input.name, 'name'),
-    email: optionalText(input.email, 'email', 254),
+    email: optionalText(input.email, 'email', 254)?.toLocaleLowerCase() ?? null,
     phone: optionalText(input.phone, 'phone', 40),
     license: optionalText(input.license, 'license', 60),
     status: enumValue(input.status, driverStatuses, 'status'),
@@ -83,12 +85,46 @@ export async function saveDriver(input: DriverInput) {
   if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) throw new Error('Invalid email')
   if (input.id) {
     const id = safeId(input.id)
-    const [updated] = await db.update(drivers).set(values).where(and(eq(drivers.id, id), eq(drivers.userId, userId))).returning({ id: drivers.id })
-    if (!updated) throw new Error('Record not found')
-  } else {
+    const [existing] = await db.select().from(drivers).where(and(eq(drivers.id, id), eq(drivers.userId, userId))).limit(1)
+    if (!existing) throw new Error('Record not found')
+    if (existing.authUserId && values.email !== existing.email) throw new Error('Driver login email cannot be changed here')
+    await db.update(drivers).set(values).where(and(eq(drivers.id, id), eq(drivers.userId, userId)))
+    revalidatePath('/')
+    return null
+  }
+
+  if (!input.createAccess) {
     await db.insert(drivers).values({ id: randomUUID(), userId, ...values })
+    revalidatePath('/')
+    return null
+  }
+
+  if (!values.email) throw new Error('A driver email is required to create sign-in access')
+  const temporaryPassword = randomBytes(18).toString('base64url')
+  const requestHeaders = await headers()
+  let authUserId: string | undefined
+  try {
+    const created = await auth.api.createUser({
+      headers: requestHeaders,
+      body: { email: values.email, name: values.name, password: temporaryPassword, role: 'driver' },
+    })
+    authUserId = created.user.id
+    await db.transaction(async (tx) => {
+      await tx.insert(drivers).values({ id: randomUUID(), userId, authUserId, ...values })
+      await tx.update(user).set({ mustChangePassword: true }).where(eq(user.id, authUserId!))
+    })
+  } catch {
+    if (authUserId) {
+      try {
+        await auth.api.removeUser({ headers: requestHeaders, body: { userId: authUserId } })
+      } catch {
+        throw new Error('Could not finish driver account creation')
+      }
+    }
+    throw new Error('Could not create driver account')
   }
   revalidatePath('/')
+  return { temporaryPassword }
 }
 
 export async function saveVehicle(input: VehicleInput) {
@@ -171,6 +207,8 @@ export async function deleteRecord(kind: 'driver' | 'vehicle' | 'route' | 'trip'
   const userId = await getUserId()
   const id = safeId(idValue)
   if (kind === 'driver') {
+    const [driver] = await db.select({ authUserId: drivers.authUserId }).from(drivers).where(and(eq(drivers.id, id), eq(drivers.userId, userId))).limit(1)
+    if (driver?.authUserId) await auth.api.removeUser({ headers: await headers(), body: { userId: driver.authUserId } })
     await db.transaction(async (tx) => {
       await tx.update(trips).set({ driverId: null }).where(and(eq(trips.driverId, id), eq(trips.userId, userId)))
       await tx.delete(drivers).where(and(eq(drivers.id, id), eq(drivers.userId, userId)))

@@ -8,6 +8,11 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('emailVerified').notNull().default(false),
   image: text('image'),
+  role: text('role').notNull().default('admin'),
+  mustChangePassword: boolean('mustChangePassword').notNull().default(false),
+  banned: boolean('banned').notNull().default(false),
+  banReason: text('banReason'),
+  banExpires: timestamp('banExpires'),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 })
@@ -21,6 +26,7 @@ export const session = pgTable('session', {
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),
   userId: text('userId').notNull(),
+  impersonatedBy: text('impersonatedBy'),
 })
 
 export const account = pgTable('account', {
@@ -51,6 +57,7 @@ export const verification = pgTable('verification', {
 export const drivers = pgTable('drivers', {
   id: text('id').primaryKey(),
   userId: text('userId').notNull(),
+  authUserId: text('authUserId').unique(),
   name: text('name').notNull(),
   email: text('email'),
   phone: text('phone'),
