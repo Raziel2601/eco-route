@@ -1,12 +1,12 @@
 import { betterAuth } from 'better-auth'
-import { admin } from 'better-auth/plugins'
+import { admin , emailOTP} from 'better-auth/plugins'
 import { adminAc, userAc } from 'better-auth/plugins/admin/access'
 import { nextCookies } from 'better-auth/next-js'
 import { pool } from '@/lib/db'
-import { emailOTP } from "better-auth/plugins"
 import { sendOtpEmail } from "./mailer"
 
 export const auth = betterAuth({
+  database: pool,
   baseURL:
     process.env.BETTER_AUTH_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -29,7 +29,19 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [admin({ defaultRole: 'driver', adminRoles: ['admin'], roles: { admin: adminAc, driver: userAc } }), nextCookies()],
+  plugins: [
+    admin({ 
+    defaultRole: 'driver', 
+    adminRoles: ['admin'], 
+    roles: { admin: adminAc, driver: userAc }.
+    }), 
+    emailOTP({
+      async sendVerificationOTP({ email, OTP }) {
+        await sendOtpEmail, otp)
+      },
+    }),
+    nextCookies()
+  ],
   trustedOrigins: [
     ...(process.env.NODE_ENV === 'development'
       ? [
@@ -42,9 +54,10 @@ export const auth = betterAuth({
       : []),
     ...(process.env.NODE_ENV === 'production'
       ? [
-          ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+          ...(process.env.VERCEL_URL 
+          ? [`https://${process.env.VERCEL_URL}`] : []),
           ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
-            ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
+          ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
             : []),
         ]
       : []),
