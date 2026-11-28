@@ -7,13 +7,6 @@ import { emailOTP } from "better-auth/plugins"
 import { sendOtpEmail } from "./mailer"
 
 export const auth = betterAuth({
-  plugins: [
-    emailOTP({
-      async sendVerificationOTP({ email, otp }) {
-        await sendOtpEmail(email, otp);
-      },
-    }),
-  ],
   baseURL:
     process.env.BETTER_AUTH_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
