@@ -33,11 +33,11 @@ export const auth = betterAuth({
     admin({ 
     defaultRole: 'driver', 
     adminRoles: ['admin'], 
-    roles: { admin: adminAc, driver: userAc }.
-    }), 
+    roles: { admin: adminAc, driver: userAc },
+    }),
     emailOTP({
-      async sendVerificationOTP({ email, OTP }) {
-        await sendOtpEmail, otp)
+      async sendVerificationOTP({ email, otp }) {
+        await sendOtpEmail(email, otp)
       },
     }),
     nextCookies()
