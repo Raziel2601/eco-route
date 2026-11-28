@@ -3,9 +3,17 @@ import { admin } from 'better-auth/plugins'
 import { adminAc, userAc } from 'better-auth/plugins/admin/access'
 import { nextCookies } from 'better-auth/next-js'
 import { pool } from '@/lib/db'
+import { emailOTP } from "better-auth/plugins"
+import { sendOtpEmail } from "./mailer"
 
 export const auth = betterAuth({
-  database: pool,
+  plugins: [
+    emailOTP({
+      async sendVerificationOTP({ email, otp }) {
+        await sendOtpEmail(email, otp);
+      },
+    }),
+  ],
   baseURL:
     process.env.BETTER_AUTH_URL ??
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
